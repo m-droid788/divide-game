@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIVIDE Game</title>
+    <style>
+        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; }
+        .card { background: #333; border: 2px solid #555; border-radius: 10px; padding: 20px; margin: 20px auto; width: 200px; font-size: 40px; }
+        .btn { background: #0088cc; border: none; color: white; padding: 15px 30px; border-radius: 5px; margin: 10px; font-size: 18px; }
+        .special { background: #e67e22; }
+    </style>
+</head>
+<body>
+    <h1>DIVIDE</h1>
+    <div class="card" id="number">12</div>
+    <button class="btn" onclick="action('shift')">Сдвиг ➡️</button>
+    <button class="btn special" onclick="action('mirror')">Зеркало 🪞</button>
+    
+    <script>
+        function action(type) {
+            let num = document.getElementById('number').innerText;
+            alert('Ты нажал ' + type + ' для числа ' + num);
+        }
+    </script>
+</body>
+</html>
