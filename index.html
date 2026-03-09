@@ -3,106 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>КРАТНО PRO</title>
+    <title>КРАТНО PRO: ГЕНИЙ</title>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
-        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .cards-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
-        .mini-card { padding: 10px; border-radius: 8px; font-weight: bold; font-size: 14px; min-width: 35px; }
-        .card { background: #333; border: 3px solid #555; border-radius: 20px; padding: 40px; margin: 20px auto; width: 200px; font-size: 64px; font-weight: bold; position: relative; }
-        .btn-main { background: #0088cc; border: none; color: white; padding: 15px; border-radius: 12px; width: 45%; font-size: 18px; font-weight: bold; }
-        .controls-bottom { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 10px; }
-        .icon-btn { background: white; border: none; border-radius: 15px; width: 60px; height: 60px; font-size: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        #timer { font-size: 20px; color: #e74c3c; font-weight: bold; }
-        input { background: #333; color: white; border: 1px solid #555; padding: 5px; width: 50px; border-radius: 5px; text-align: center; }
+        body { background: #121212; color: white; text-align: center; font-family: -apple-system, sans-serif; margin: 0; padding: 15px; user-select: none; }
+        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .target-input { background: #333; color: #2ecc71; border: 1px solid #555; padding: 8px; width: 60px; border-radius: 10px; font-size: 18px; text-align: center; font-weight: bold; }
+        #timer { font-size: 22px; color: #e74c3c; font-weight: bold; min-width: 60px; }
+        .main-card { background: #222; border: 3px solid #444; border-radius: 20px; padding: 30px; margin: 15px auto; width: 80%; font-size: 50px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s; }
+        .digit-cards { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; min-height: 80px; }
+        .digit-card { background: white; color: black; width: 60px; height: 80px; border-radius: 12px; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.4); transform: rotate(-2deg); }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
+        .icon-btn { background: #333; border: none; border-radius: 15px; width: 65px; height: 65px; font-size: 30px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .action-btn { background: #0088cc; border: none; color: white; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; width: 48%; }
     </style>
 </head>
 <body>
-    <div class="header-ui">
-        <div>Кратность: <input type="number" id="target-val" value="3" min="2" max="99" onchange="resetGame()"></div>
-        <div id="timer">02:00</div>
-    </div>
 
-    <div class="cards-row" id="property-cards">
-        <div class="mini-card" style="background: #2ecc71;">:2</div>
-        <div class="mini-card" style="background: #556b2f;">:3</div>
-        <div class="mini-card" style="background: #f1c40f; color: black;">:5</div>
-        <div class="mini-card" style="background: #e67e22;">:7</div>
-        <div class="mini-card" style="background: #e74c3c;">:11</div>
-    </div>
+<div class="header-ui">
+    <div>Кратность: <input type="number" id="target" class="target-input" value="3" min="2" max="99" onchange="initLevel()"></div>
+    <div id="timer">02:00</div>
+</div>
 
-    <div class="card" id="main-num">12</div>
+<div class="main-card" id="display">0</div>
 
-    <div style="display: flex; justify-content: center; gap: 10px;">
-        <button class="btn-main" onclick="shift()">Сдвиг ➡️</button>
-        <button class="btn-main" style="background: #e67e22;" onclick="mirror()">Зеркало 🪞</button>
-    </div>
+<div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+    <button class="action-btn" onclick="applyAction('shift')">Сдвиг ➡️</button>
+    <button class="action-btn" style="background: #e67e22;" onclick="applyAction('mirror')">Зеркало 🪞</button>
+</div>
 
-    <div class="controls-bottom">
-        <button class="icon-btn" onclick="showHint()">💡</button>
-        <button class="icon-btn" onclick="reroll()" id="reroll-btn">🔃 <span style="font-size: 12px; position: absolute; top: 70px;" id="tries">2</span></button>
-    </div>
+<div class="digit-cards" id="hand"></div>
 
-    <script>
-        let numDisplay = document.getElementById('main-num');
-        let timeLeft = 120;
-        let rerolls = 2;
+<div class="controls">
+    <button class="icon-btn" onclick="showHint()">💡</button>
+    <div id="status" style="font-size: 12px; color: #888;">🔃 ОСТАЛОСЬ: <span id="rerolls">2</span></div>
+    <button class="icon-btn" onclick="rerollHand()">🔃</button>
+</div>
 
-        function updateTimer() {
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
-            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            if (timeLeft > 0) timeLeft--;
-        }
-        setInterval(updateTimer, 1000);
+<script>
+let target = 3, currentNum = "12", hand = [], timeLeft = 120, rerolls = 2, timer;
 
-        function checkWin() {
-            let n = parseInt(numDisplay.innerText);
-            let target = parseInt(document.getElementById('target-val').value);
-            if (n % target === 0) {
-                numDisplay.style.borderColor = "#2ecc71";
-                alert("ПОБЕДА! Число " + n + " кратно " + target);
-                resetGame();
-            }
-        }
+const getHint = (n) => {
+    if (n == 2) return "Четное число (0,2,4,6,8 в конце)";
+    if (n == 3) return "Сумма цифр делится на 3";
+    if (n == 4) return "Последние две цифры делятся на 4";
+    if (n == 5) return "В конце 0 или 5";
+    if (n == 9) return "Сумма цифр делится на 9";
+    if (n == 11) return "Сумма цифр на нечетных местах минус на четных = 0 или 11";
+    if (n == 99) return "Проверь свойства для 9 и 11 сразу!";
+    return `Просто раздели на ${n} без остатка!`;
+};
 
-        function shift() {
-            let s = numDisplay.innerText;
-            numDisplay.innerText = s.slice(-1) + s.slice(0, -1);
-            checkWin();
-        }
+function initLevel() {
+    target = Math.max(2, Math.min(99, parseInt(document.getElementById('target').value)));
+    document.getElementById('target').value = target;
+    rerolls = 2; timeLeft = 120;
+    generateValidLevel();
+    startTimer();
+}
 
-        function mirror() {
-            numDisplay.innerText = numDisplay.innerText.split('').reverse().join('');
-            checkWin();
-        }
+function generateValidLevel() {
+    let solution = target * (Math.floor(Math.random() * 50) + 5);
+    let sStr = solution.toString();
+    currentNum = sStr.slice(0, Math.max(1, sStr.length - 2));
+    hand = sStr.slice(-2).split('').concat([Math.floor(Math.random()*10).toString()]);
+    updateUI();
+}
 
-        function reroll() {
-            if (rerolls > 0) {
-                numDisplay.innerText = Math.floor(Math.random() * 90 + 10);
-                rerolls--;
-                document.getElementById('tries').innerText = rerolls;
-                if (rerolls === 0) document.getElementById('reroll-btn').style.opacity = "0.5";
-            }
-        }
+function updateUI() {
+    document.getElementById('display').innerText = currentNum;
+    document.getElementById('display').style.borderColor = (parseInt(currentNum) % target === 0) ? "#2ecc71" : "#444";
+    document.getElementById('rerolls').innerText = rerolls;
+    let handDiv = document.getElementById('hand');
+    handDiv.innerHTML = '';
+    hand.forEach((digit, i) => {
+        let card = document.createElement('div');
+        card.className = 'digit-card';
+        card.innerText = digit;
+        card.onclick = () => useCard(i);
+        handDiv.appendChild(card);
+    });
+}
 
-        function showHint() {
-            let t = document.getElementById('target-val').value;
-            let hints = {
-                '2': 'Число должно быть четным',
-                '3': 'Сумма цифр должна делиться на 3',
-                '5': 'Должно заканчиваться на 0 или 5'
-            };
-            alert(hints[t] || "Раздели число на " + t + " без остатка!");
-        }
+function useCard(index) {
+    let side = confirm("Вставить цифру в начало? (OK - в начало, Cancel - в конец)");
+    currentNum = side ? hand[index] + currentNum : currentNum + hand[index];
+    hand.splice(index, 1);
+    updateUI();
+    if (parseInt(currentNum) % target === 0) alert("ПОБЕДА!");
+}
 
-        function resetGame() {
-            timeLeft = 120;
-            rerolls = 2;
-            document.getElementById('tries').innerText = rerolls;
-            numDisplay.innerText = Math.floor(Math.random() * 90 + 10);
-            numDisplay.style.borderColor = "#555";
-        }
-    </script>
+function rerollHand() {
+    if (rerolls > 0) { rerolls--; generateValidLevel(); }
+}
+
+function applyAction(type) {
+    if (type === 'shift') currentNum = currentNum.slice(-1) + currentNum.slice(0, -1);
+    else currentNum = currentNum.split('').reverse().join('');
+    updateUI();
+}
+
+function showHint() { alert(getHint(target)); }
+
+function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft/60), s = timeLeft%60;
+        document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+        if (timeLeft <= 0) { clearInterval(timer); alert("Время вышло! Решение было рядом."); }
+    }, 1000);
+}
+
+initLevel();
+</script>
 </body>
 </html>
