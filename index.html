@@ -2,25 +2,55 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIVIDE Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>КРАТНО</title>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; }
-        .card { background: #333; border: 2px solid #555; border-radius: 10px; padding: 20px; margin: 20px auto; width: 200px; font-size: 40px; }
-        .btn { background: #0088cc; border: none; color: white; padding: 15px 30px; border-radius: 5px; margin: 10px; font-size: 18px; }
+        body { background: #1a1a1a; color: white; text-align: center; font-family: -apple-system, sans-serif; margin-top: 50px; overflow: hidden; }
+        .card { background: #333; border: 2px solid #555; border-radius: 15px; padding: 30px; margin: 20px auto; width: 220px; font-size: 60px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.3s; }
+        .target { color: #2ecc71; font-size: 18px; margin-bottom: 10px; }
+        .btn-container { display: flex; justify-content: center; gap: 15px; }
+        .btn { background: #0088cc; border: none; color: white; padding: 20px; border-radius: 12px; width: 130px; font-size: 18px; font-weight: bold; cursor: pointer; }
         .special { background: #e67e22; }
+        .win { color: #2ecc71; display: none; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>DIVIDE</h1>
+    <h1>КРАТНО</h1>
+    <div class="target">ЦЕЛЬ: 21</div>
     <div class="card" id="number">12</div>
-    <button class="btn" onclick="action('shift')">Сдвиг ➡️</button>
-    <button class="btn special" onclick="action('mirror')">Зеркало 🪞</button>
     
+    <div class="btn-container">
+        <button class="btn" onclick="shift()">Сдвиг ➡️</button>
+        <button class="btn special" onclick="mirror()">Зеркало 🪞</button>
+    </div>
+
+    <div class="win" id="win-msg">ПОБЕДА! 🏆</div>
+
     <script>
-        function action(type) {
-            let num = document.getElementById('number').innerText;
-            alert('Ты нажал ' + type + ' для числа ' + num);
+        let display = document.getElementById('number');
+        let winMsg = document.getElementById('win-msg');
+
+        function checkWin() {
+            if (display.innerText === "21") {
+                display.style.borderColor = "#2ecc71";
+                winMsg.style.display = "block";
+            } else {
+                display.style.borderColor = "#555";
+                winMsg.style.display = "none";
+            }
+        }
+
+        function shift() {
+            let val = display.innerText;
+            if (val.length > 1) {
+                display.innerText = val.slice(-1) + val.slice(0, -1);
+                checkWin();
+            }
+        }
+
+        function mirror() {
+            display.innerText = display.innerText.split('').reverse().join('');
+            checkWin();
         }
     </script>
 </body>
