@@ -3,54 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>КРАТНО</title>
+    <title>КРАТНО PRO</title>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: -apple-system, sans-serif; margin-top: 50px; overflow: hidden; }
-        .card { background: #333; border: 2px solid #555; border-radius: 15px; padding: 30px; margin: 20px auto; width: 220px; font-size: 60px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: 0.3s; }
-        .target { color: #2ecc71; font-size: 18px; margin-bottom: 10px; }
-        .btn-container { display: flex; justify-content: center; gap: 15px; }
-        .btn { background: #0088cc; border: none; color: white; padding: 20px; border-radius: 12px; width: 130px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .special { background: #e67e22; }
-        .win { color: #2ecc71; display: none; margin-top: 20px; font-weight: bold; }
+        body { background: #1a1a1a; color: white; text-align: center; font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
+        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .cards-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+        .mini-card { padding: 10px; border-radius: 8px; font-weight: bold; font-size: 14px; min-width: 35px; }
+        .card { background: #333; border: 3px solid #555; border-radius: 20px; padding: 40px; margin: 20px auto; width: 200px; font-size: 64px; font-weight: bold; position: relative; }
+        .btn-main { background: #0088cc; border: none; color: white; padding: 15px; border-radius: 12px; width: 45%; font-size: 18px; font-weight: bold; }
+        .controls-bottom { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 10px; }
+        .icon-btn { background: white; border: none; border-radius: 15px; width: 60px; height: 60px; font-size: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #timer { font-size: 20px; color: #e74c3c; font-weight: bold; }
+        input { background: #333; color: white; border: 1px solid #555; padding: 5px; width: 50px; border-radius: 5px; text-align: center; }
     </style>
 </head>
 <body>
-    <h1>КРАТНО</h1>
-    <div class="target">ЦЕЛЬ: 21</div>
-    <div class="card" id="number">12</div>
-    
-    <div class="btn-container">
-        <button class="btn" onclick="shift()">Сдвиг ➡️</button>
-        <button class="btn special" onclick="mirror()">Зеркало 🪞</button>
+    <div class="header-ui">
+        <div>Кратность: <input type="number" id="target-val" value="3" min="2" max="99" onchange="resetGame()"></div>
+        <div id="timer">02:00</div>
     </div>
 
-    <div class="win" id="win-msg">ПОБЕДА! 🏆</div>
+    <div class="cards-row" id="property-cards">
+        <div class="mini-card" style="background: #2ecc71;">:2</div>
+        <div class="mini-card" style="background: #556b2f;">:3</div>
+        <div class="mini-card" style="background: #f1c40f; color: black;">:5</div>
+        <div class="mini-card" style="background: #e67e22;">:7</div>
+        <div class="mini-card" style="background: #e74c3c;">:11</div>
+    </div>
+
+    <div class="card" id="main-num">12</div>
+
+    <div style="display: flex; justify-content: center; gap: 10px;">
+        <button class="btn-main" onclick="shift()">Сдвиг ➡️</button>
+        <button class="btn-main" style="background: #e67e22;" onclick="mirror()">Зеркало 🪞</button>
+    </div>
+
+    <div class="controls-bottom">
+        <button class="icon-btn" onclick="showHint()">💡</button>
+        <button class="icon-btn" onclick="reroll()" id="reroll-btn">🔃 <span style="font-size: 12px; position: absolute; top: 70px;" id="tries">2</span></button>
+    </div>
 
     <script>
-        let display = document.getElementById('number');
-        let winMsg = document.getElementById('win-msg');
+        let numDisplay = document.getElementById('main-num');
+        let timeLeft = 120;
+        let rerolls = 2;
+
+        function updateTimer() {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            if (timeLeft > 0) timeLeft--;
+        }
+        setInterval(updateTimer, 1000);
 
         function checkWin() {
-            if (display.innerText === "21") {
-                display.style.borderColor = "#2ecc71";
-                winMsg.style.display = "block";
-            } else {
-                display.style.borderColor = "#555";
-                winMsg.style.display = "none";
+            let n = parseInt(numDisplay.innerText);
+            let target = parseInt(document.getElementById('target-val').value);
+            if (n % target === 0) {
+                numDisplay.style.borderColor = "#2ecc71";
+                alert("ПОБЕДА! Число " + n + " кратно " + target);
+                resetGame();
             }
         }
 
         function shift() {
-            let val = display.innerText;
-            if (val.length > 1) {
-                display.innerText = val.slice(-1) + val.slice(0, -1);
-                checkWin();
-            }
+            let s = numDisplay.innerText;
+            numDisplay.innerText = s.slice(-1) + s.slice(0, -1);
+            checkWin();
         }
 
         function mirror() {
-            display.innerText = display.innerText.split('').reverse().join('');
+            numDisplay.innerText = numDisplay.innerText.split('').reverse().join('');
             checkWin();
+        }
+
+        function reroll() {
+            if (rerolls > 0) {
+                numDisplay.innerText = Math.floor(Math.random() * 90 + 10);
+                rerolls--;
+                document.getElementById('tries').innerText = rerolls;
+                if (rerolls === 0) document.getElementById('reroll-btn').style.opacity = "0.5";
+            }
+        }
+
+        function showHint() {
+            let t = document.getElementById('target-val').value;
+            let hints = {
+                '2': 'Число должно быть четным',
+                '3': 'Сумма цифр должна делиться на 3',
+                '5': 'Должно заканчиваться на 0 или 5'
+            };
+            alert(hints[t] || "Раздели число на " + t + " без остатка!");
+        }
+
+        function resetGame() {
+            timeLeft = 120;
+            rerolls = 2;
+            document.getElementById('tries').innerText = rerolls;
+            numDisplay.innerText = Math.floor(Math.random() * 90 + 10);
+            numDisplay.style.borderColor = "#555";
         }
     </script>
 </body>
